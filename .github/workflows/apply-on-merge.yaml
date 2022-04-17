@@ -9,10 +9,12 @@ on:
   #     - main
 
 env:
-  # PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
   GKE_CLUSTER: fibonacci-app-cluster    # TODO: update to cluster name
   GKE_ZONE: northamerica-northeast1-a	  # TODO: update to cluster zone
   # DEPLOYMENT_NAME: gke-hello-app        # TODO: update deployment name if changed in deployment.yaml
+  AR_REGION: northamerica-northeast1   # TODO: update to Artifact Registry repo region
+  IMAGE_NAME: testjay
 
 jobs:
   setup-and-deploy:
@@ -37,6 +39,16 @@ jobs:
     # Setup gcloud CLI
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0
+
+    - name: Configure Docker Client
+      run: |-
+        gcloud auth configure-docker $AR_REGION-docker.pkg.dev --quiet
+
+    - name: Build Docker Image
+      run: |-
+        docker build -t $IMAGE_NAME:latest ./client
+        docker tag $IMAGE_NAME:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
+        docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
 
     # Get the GKE credentials so we can deploy to the cluster
     - run: |-
