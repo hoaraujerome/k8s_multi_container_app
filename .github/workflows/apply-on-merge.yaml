@@ -10,9 +10,9 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  GKE_CLUSTER: fibonacci-app-cluster    # TODO: update to cluster name
+  APPLICATION_NAME: fibonacci-app       # TODO: update to cluster name
   GKE_ZONE: northamerica-northeast1-a	  # TODO: update to cluster zone
-  # DEPLOYMENT_NAME: gke-hello-app        # TODO: update deployment name if changed in deployment.yaml
+  # DEPLOYMENT_NAME: gke-hello-app      # TODO: update deployment name if changed in deployment.yaml
   AR_REGION: northamerica-northeast1   # TODO: update to Artifact Registry repo region
   IMAGE_NAME: testjay
 
@@ -47,16 +47,13 @@ jobs:
     - name: Build Docker Image
       run: |-
         docker build -t $IMAGE_NAME:latest ./client
-        docker tag $IMAGE_NAME:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
-        docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
+        docker tag $IMAGE_NAME:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/$IMAGE_NAME:latest
+        docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/$IMAGE_NAME:latest
 
     # Get the GKE credentials so we can deploy to the cluster
     - run: |-
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-
-    # # Deploy sample image to the GKE cluster
+        gcloud container clusters get-credentials "$APPLICATION_NAME" --zone "$GKE_ZONE"
     # - name: Deploy
-    #   run: |-
-    #     kubectl apply -f deployment.yml
+    #   run: |-   #     kubectl apply -f deployment.yml
     #     kubectl rollout status deployment/$DEPLOYMENT_NAME
     #     kubectl get services -o wide
