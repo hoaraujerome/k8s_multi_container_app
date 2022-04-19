@@ -58,10 +58,10 @@ jobs:
     - name: Build and push the image for the module to GCP registry
       run: |-
         echo "Building the production docker image for the module"
-        docker build -t ${{ matrix.module }}:latest ./${{ matrix.module }}
-        docker tag ${{ matrix.module }}:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:latest
+        docker build -t ${{ matrix.module }}:latest -t ${{ matrix.module }}:${{ github.sha }} ./${{ matrix.module }}
         echo "Pushing the image to GCP registry..."
         docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:latest
+        docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
 
     # Get the GKE credentials so we can deploy to the cluster
     # - run: |-
