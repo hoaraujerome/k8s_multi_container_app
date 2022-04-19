@@ -63,6 +63,7 @@ jobs:
         docker tag ${{ matrix.module }}:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
         echo "Pushing the image to GCP registry..."
         docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:latest
+        docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
 
     # Get the GKE credentials so we can deploy to the cluster
     # - run: |-
