@@ -60,7 +60,7 @@ jobs:
         echo "Building the production docker image for the module"
         docker build -t ${{ matrix.module }}:latest -t ${{ matrix.module }}:${{ github.sha }} ./${{ matrix.module }}
         docker tag {{ matrix.module }}:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:latest
-        docker tag {{ matrix.module }}:latest $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
+        docker tag {{ matrix.module }}:${{ github.sha }} $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
         echo "Pushing the image to GCP registry..."
         docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:latest
         docker push $AR_REGION-docker.pkg.dev/$PROJECT_ID/$APPLICATION_NAME/${{ matrix.module }}:${{ github.sha }}
