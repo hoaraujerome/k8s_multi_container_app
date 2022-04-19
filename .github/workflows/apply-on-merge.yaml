@@ -23,7 +23,6 @@ jobs:
       matrix:
         module:
           - client
-          - nginx
           - server
           - worker
 
