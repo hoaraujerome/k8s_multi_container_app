@@ -63,7 +63,7 @@ jobs:
     - name: Build and push the image for the module to the registry
       run: |-
         echo "Building the production docker image for the module"
-        docker build -t thecloudprofessional/${{ matrix.module }}:latest thecloudprofessional/${{ matrix.module }}:${{ github.sha }} ./${{ matrix.module }}
+        docker build -t thecloudprofessional/${{ matrix.module }}:latest -t thecloudprofessional/${{ matrix.module }}:${{ github.sha }} ./${{ matrix.module }}
         echo "Pushing the image to the registry..."
         docker push thecloudprofessional/${{ matrix.module }}:latest
         docker push thecloudprofessional/${{ matrix.module }}:${{ github.sha }}
