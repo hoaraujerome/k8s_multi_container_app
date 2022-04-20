@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: worker  
-        image: stephengrider/multi-worker
+        image: thecloudprofessional/worker
         env:
           - name: REDIS_HOST
             value: redis-cluster-ip-service

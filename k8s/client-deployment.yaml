@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: client
-        image: stephengrider/multi-client
+        image: thecloudprofessional/client
         ports:
         - containerPort: 3000
