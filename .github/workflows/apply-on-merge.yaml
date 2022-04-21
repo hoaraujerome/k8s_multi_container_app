@@ -10,9 +10,8 @@ on:
 
 env:
   # PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  APPLICATION_NAME: fibonacci-app       # TODO: update to cluster name
+  GKE_CLUSTER: fibonacci-app            # TODO: update to cluster name
   GKE_ZONE: northamerica-northeast1-a	  # TODO: update to cluster zone
-  AR_REGION: northamerica-northeast1   # TODO: update to Artifact Registry repo region
 
 jobs:
   build-and-push:
@@ -25,11 +24,6 @@ jobs:
           - server
           - worker
 
-    # Add "id-token" with the intended permissions.
-    # permissions:
-    #   contents: 'read'
-    #   id-token: 'write'
-
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -41,18 +35,6 @@ jobs:
         docker build -t client-test -f ./client/Dockerfile.dev ./client
         echo "Run tests against that image"
         docker run -e CI=true client-test npm test
-
-    # - id: 'auth'
-    #   uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     credentials_json: '${{ secrets.SA_KEY }}'
-
-    # - name: Set up Cloud SDK
-    #   uses: google-github-actions/setup-gcloud@v0
-
-    # - name: Configure Docker Client
-    #   run: |-
-    #     gcloud auth configure-docker $AR_REGION-docker.pkg.dev --quiet
 
     - name: Login to Docker Hub
       uses: docker/login-action@v1
@@ -68,13 +50,39 @@ jobs:
         docker push thecloudprofessional/${{ matrix.module }}:latest
         docker push thecloudprofessional/${{ matrix.module }}:${{ github.sha }}
 
-    # - name: Get the GKE credentials so we can deploy to the cluster
-    #   run: |-
-    #     gcloud container clusters get-credentials "$APPLICATION_NAME" --zone "$GKE_ZONE"
+  deployStaging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
 
-    # - name: Deploy
-    #   run: |-   
-    #     kubectl apply -f k8s
-    #     kubectl set image deployments/server-deployment server=
-    #     kubectl rollout status deployment/client-deployment
-    #     kubectl get services -o wide
+      # Add "id-token" with the intended permissions.
+      # permissions:
+      #   contents: 'read'
+      #   id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.SA_KEY }}'
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+
+    - name: Get the GKE credentials so we can deploy to the cluster
+      run: |-
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+    - name: Deploy
+      run: |-   
+        kubectl apply -f k8s
+        kubectl set image deployments/server-deployment server=thecloudprofessional/server:${{ github.sha }}
+        kubectl set image deployments/worker-deployment worker=thecloudprofessional/worker:${{ github.sha }}
+        kubectl set image deployments/client-deployment client=thecloudprofessional/client:${{ github.sha }}
+        kubectl rollout status deployment/server-deployment
+        kubectl rollout status deployment/worker-deployment
+        kubectl rollout status deployment/client-deployment
+        kubectl get services -o wide
