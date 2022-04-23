@@ -9,7 +9,7 @@ on:
   #     - main
 
 env:
-  # PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
   GKE_CLUSTER: fibonacci-app            # TODO: update to cluster name
   GKE_ZONE: northamerica-northeast1-a	  # TODO: update to cluster zone
 
@@ -54,11 +54,6 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [build-and-push]
-
-      # Add "id-token" with the intended permissions.
-      # permissions:
-      #   contents: 'read'
-      #   id-token: 'write'
 
     steps:
     - name: Checkout
